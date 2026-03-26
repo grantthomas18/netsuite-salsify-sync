@@ -23,7 +23,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install paramiko
+        run: pip install requests requests-oauthlib paramiko
 
       - name: Run sync (LIVE mode)
         env:
