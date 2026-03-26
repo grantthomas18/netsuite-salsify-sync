@@ -1,0 +1,42 @@
+name: NetSuite → Salsify Sync
+
+on:
+  schedule:
+    # Runs at 8:00 PM and 8:00 AM UTC = ~6 AM and 6 PM AEST (UTC+10)
+    - cron: '0 20 * * *'   # 6 AM AEST
+    - cron: '0 8 * * *'    # 6 PM AEST
+  workflow_dispatch:        # Allow manual trigger from GitHub UI
+
+jobs:
+  sync:
+    name: Export NetSuite Items to Salsify FTP
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install paramiko
+
+      - name: Run sync (LIVE mode)
+        env:
+          NS_ACCOUNT_ID:       ${{ secrets.NS_ACCOUNT_ID }}
+          NS_CONSUMER_KEY:     ${{ secrets.NS_CONSUMER_KEY }}
+          NS_CONSUMER_SECRET:  ${{ secrets.NS_CONSUMER_SECRET }}
+          NS_TOKEN:            ${{ secrets.NS_TOKEN }}
+          NS_TOKEN_SECRET:     ${{ secrets.NS_TOKEN_SECRET }}
+          FTP_PASSWORD:        ${{ secrets.FTP_PASSWORD }}
+        run: python netsuite_to_salsify.py
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Sync failed at $(date -u). Check the Actions log above for details."
+          # Optional: add a Slack or email notification step here
