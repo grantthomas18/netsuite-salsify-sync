@@ -7,6 +7,9 @@ on:
     - cron: '0 8 * * *'    # 6 PM AEST
   workflow_dispatch:        # Allow manual trigger from GitHub UI
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   sync:
     name: Export NetSuite Items to Salsify FTP
@@ -39,4 +42,3 @@ jobs:
         if: failure()
         run: |
           echo "❌ Sync failed at $(date -u). Check the Actions log above for details."
-          # Optional: add a Slack or email notification step here
